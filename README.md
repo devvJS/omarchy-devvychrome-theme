@@ -6,6 +6,19 @@ Devvychrome is built for focused engineering workflows, atmospheric computing,
 and low-distraction environments. It carries hierarchy through luminance,
 spacing, and typography — not saturated accent colors.
 
+![Devvychrome — Coastal Monolith](backgrounds/devvychrome-coastal-monolith-3440x1440.png)
+
+## Visual identity
+
+The flagship wallpaper, *Coastal Monolith*, anchors the theme. It pairs
+brutalist concrete architecture with coastal fog: matte surfaces, deep
+atmospheric depth, and a wide central plane held open for terminals
+and editor panes. The mood is quiet, isolated, and engineering-grade.
+
+Devvychrome is the desktop equivalent of that scene — cinematic
+without spectacle, atmospheric without distraction, and unmistakably
+built for a workstation.
+
 ## Overview
 
 Devvychrome is one Omarchy theme distributed from a single repository.
@@ -83,12 +96,15 @@ user's live `~/.config/waybar` — see
 
 ## Roadmap
 
-- Curated grayscale wallpaper set under `backgrounds/`
-- Preview screenshots for terminal, Hyprland desktop, and Waybar
-- Devvychrome-native Waybar styling (see the Waybar roadmap)
+- Expand the grayscale wallpaper set around the *Coastal Monolith*
+  reference; every addition must pass the standards in
+  [`docs/design-language.md`](docs/design-language.md).
+- Preview screenshots for terminal, Hyprland desktop, and Waybar,
+  composed against the flagship wallpaper.
+- Devvychrome-native Waybar styling (see the Waybar roadmap).
 - Optional minimal music visualizer and now-playing module with
-  hover-revealed playback controls
-- Light variant exploration, deferred until the dark variant lands
+  hover-revealed playback controls.
+- Light variant exploration, deferred until the dark variant lands.
 
 ## License
 
