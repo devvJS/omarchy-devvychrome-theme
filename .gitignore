@@ -1,0 +1,17 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local scratch
+/tmp/
+/.cache/
+*.log
+
+# Build artifacts (none expected today, reserved)
+dist/
+build/

@@ -1,0 +1,51 @@
+# Devvychrome — colors.toml
+# Source-of-truth palette consumed by Omarchy theme generation.
+#
+# Devvychrome is a true-monochrome theme: hierarchy is carried by
+# luminance, not hue. Saturation is held at zero across every value.
+#
+# Only the keys documented by Omarchy are defined here:
+#   accent, cursor, foreground, background,
+#   selection_foreground, selection_background,
+#   color0..color15
+#
+# The richer semantic palette (surfaces, borders, status, etc.)
+# is documented in docs/design-language.md and is intended to
+# inform downstream consumers (Waybar, custom scripts) without
+# polluting Omarchy's expected schema.
+
+# Quiet neutral used as the theme's only "accent".
+# Sits at mid-luminance so it never punches above body text.
+accent = "#9a9a9a"
+
+cursor = "#d0d0d0"
+
+foreground = "#e0e0e0"
+background = "#161616"
+
+selection_foreground = "#e0e0e0"
+selection_background = "#3a3a3a"
+
+# Normal ANSI palette (0–7).
+# Hues are collapsed to grayscale; values are spaced so that
+# semantic terminal output (errors, warnings, success) stays
+# legible through luminance alone.
+color0  = "#1b1b1b"  # black
+color1  = "#7a7a7a"  # red
+color2  = "#8a8a8a"  # green
+color3  = "#a0a0a0"  # yellow
+color4  = "#909090"  # blue
+color5  = "#858585"  # magenta
+color6  = "#9a9a9a"  # cyan
+color7  = "#dcdcdc"  # white
+
+# Bright ANSI palette (8–15).
+# Each entry sits a step higher in luminance than its 0–7 counterpart.
+color8  = "#3a3a3a"  # bright black
+color9  = "#8a8a8a"  # bright red
+color10 = "#9a9a9a"  # bright green
+color11 = "#b0b0b0"  # bright yellow
+color12 = "#a0a0a0"  # bright blue
+color13 = "#959595"  # bright magenta
+color14 = "#b0b0b0"  # bright cyan
+color15 = "#ececec"  # bright white
