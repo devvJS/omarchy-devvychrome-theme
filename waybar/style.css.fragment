@@ -1,0 +1,127 @@
+/* Devvychrome — Waybar fragment (Media Rail v1)
+ *
+ * Loaded by the scratch Waybar preview via
+ *   waybar -s style.css.fragment
+ *
+ * To adopt the Rail in a live configuration, lift only the rules
+ * under the "Devvychrome Media Rail" header into the user's existing
+ * ~/.config/waybar/style.css by hand.
+ *
+ * Devvychrome is true monochrome. Saturation is held at zero across
+ * every value below; review docs/design-language.md before adding
+ * any new color value.
+ */
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "Inter", "Noto Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #e0e0e0;
+    transition: background-color 180ms ease, color 180ms ease;
+}
+
+window#waybar {
+    background: rgba(36, 36, 36, 0.85);   /* surfaces.surface @ 0.85 */
+    color: #e0e0e0;                       /* text.primary */
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    padding: 0 6px;
+}
+
+/* ── Devvychrome Media Rail ────────────────────────────────────── */
+
+/* The capsule is intentionally one luminance step DARKER than the
+ * bar so it reads as an inset instrument display, not a raised
+ * button. Internal hierarchy (glyph / label / progress) is carried
+ * by per-element pango spans emitted from now-playing.sh. */
+#group-devvychrome-media-rail {
+    background: #1d1d1d;                  /* backgrounds.secondary — recessed */
+    margin: 2px 4px;
+    padding: 0 10px;                      /* deliberate edge breath */
+    border-radius: 3px;
+}
+
+/* Subtle hover lift to bar-surface tone. The capsule's rounded
+ * corners keep it visually distinct from the (square) bar even
+ * when the fills match. No outline, no border colour shift. */
+#group-devvychrome-media-rail:hover {
+    background: #242424;                  /* surfaces.surface */
+}
+
+/* Per-element luminance is owned by the pango spans inside the
+ * module's text. The colour set here is a defensive default for
+ * cases where pango markup is not consumed. */
+#custom-now-playing {
+    color: #c8c8c8;                       /* text.secondary — fallback */
+    padding: 0 4px 0 0;
+}
+
+#custom-now-playing.idle,
+#custom-now-playing.stopped,
+#custom-now-playing.unavailable {
+    color: #5a5a5a;                       /* deeply recessed */
+}
+
+#custom-now-playing.paused {
+    color: #9a9a9a;                       /* text.muted */
+}
+
+/* Wave: integrated, not appended. Sits flush against the progress
+ * meter on the left, with capsule-edge breathing room provided by
+ * the group's right padding. Held one step below the meter's fill
+ * luminance so it is never the loudest element. */
+#custom-wave {
+    color: #9a9a9a;                       /* text.muted */
+    padding: 0 0 0 6px;
+    letter-spacing: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+
+#workspaces button,
+#idle_inhibitor,
+#clock,
+#network,
+#pulseaudio,
+#memory,
+#cpu,
+#battery {
+    padding: 0 8px;
+    color: #c8c8c8;                       /* text.secondary */
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    color: #e0e0e0;
+}
+
+#workspaces button:hover {
+    background: #2b2b2b;
+}
+
+#battery.warning {
+    color: #a0a0a0;
+}
+
+#battery.critical {
+    color: #7a7a7a;
+}
+
+tooltip {
+    background: #1d1d1d;                  /* backgrounds.secondary */
+    border: 1px solid #343434;            /* borders.default */
+    color: #e0e0e0;
+    padding: 6px 8px;
+    border-radius: 2px;
+}
+
+tooltip label {
+    color: #e0e0e0;
+}
