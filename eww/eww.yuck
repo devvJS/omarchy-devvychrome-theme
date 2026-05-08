@@ -1,0 +1,145 @@
+;; Devvychrome — Media Controls Popup (eww v1.5)
+;;
+;; An architectural surface that reads as the Media Rail unfolding
+;; downward. HANCORE V2.1c capsule treatment (2px solid #111 border,
+;; 4px radius, hard 1px shadow) is applied to the outer chassis and
+;; to each interior instrument row — album art, transport, and
+;; volume — so the popup reads as one cohesive piece of equipment
+;; rather than a card stack of independent controls.
+;;
+;; Repo-local: launched only by scripts/media/popup.sh, which runs
+;; `eww --config <repo>/eww`. The user's existing eww config (if
+;; any) is not touched.
+
+(defvar repo  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme")
+(defvar media "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media")
+
+;; ── State polling ────────────────────────────────────────────────
+;; Every poll is defensive: helper scripts emit a benign default on
+;; any failure path so the popup never renders an error string.
+
+(defpoll p_status :interval "1s" :initial "Stopped"
+  "playerctl status 2>/dev/null || echo Stopped")
+
+(defpoll p_title :interval "1s" :initial ""
+  "playerctl metadata --format '{{ title }}' 2>/dev/null || true")
+
+(defpoll p_artist :interval "1s" :initial ""
+  "playerctl metadata --format '{{ artist }}' 2>/dev/null || true")
+
+(defpoll p_album :interval "1s" :initial ""
+  "playerctl metadata --format '{{ album }}' 2>/dev/null || true")
+
+(defpoll p_progress :interval "1s" :initial "0"
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/progress.sh pct")
+
+(defpoll p_position :interval "1s" :initial "—"
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/progress.sh time")
+
+(defpoll p_art :interval "2s" :initial ""
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/art-or-placeholder.sh")
+
+(defpoll p_volume :interval "2s" :initial "50"
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/volume.sh get")
+
+;; ── Widget ───────────────────────────────────────────────────────
+
+(defwidget media-controls []
+  (box :class "popup"
+       :orientation "h"
+       :spacing 12
+       :space-evenly false
+    ;; Album art frame — HANCORE capsule treatment via .art-frame.
+    (box :class "art-frame"
+         :orientation "v"
+         :space-evenly false
+         :hexpand false
+         :vexpand false
+      (image :path p_art :image-width 80 :image-height 80))
+
+    ;; Details column.
+    (box :class "details"
+         :orientation "v"
+         :space-evenly false
+         :hexpand true
+      ;; Metadata block: title / artist / album. Recessed sub-grid.
+      (box :class "metadata"
+           :orientation "v"
+           :space-evenly false
+        (label :class "title"
+               :text { p_title != "" ? p_title : "—" }
+               :limit-width 28
+               :truncate true
+               :xalign 0)
+        (label :class "artist"
+               :text p_artist
+               :limit-width 28
+               :truncate true
+               :xalign 0
+               :visible { p_artist != "" })
+        (label :class "album"
+               :text p_album
+               :limit-width 28
+               :truncate true
+               :xalign 0
+               :visible { p_album != "" }))
+
+      ;; Progress row: thin meter + tabular time.
+      (box :class "progress-row"
+           :orientation "h"
+           :spacing 8
+           :space-evenly false
+        (scale :class "progress"
+               :value p_progress
+               :min 0 :max 100
+               :active false
+               :hexpand true)
+        (label :class "position" :text p_position))
+
+      ;; Transport capsule. Three icon-cells joined by 1px dividers
+      ;; so the row reads as a single instrument with three keys.
+      (box :class "transport"
+           :orientation "h"
+           :space-evenly true
+           :halign "fill"
+        (button :class "tx-btn tx-prev"
+                :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh previous"
+                "󰒮")
+        (button :class "tx-btn tx-play"
+                :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh play-pause"
+                { p_status == "Playing" ? "󰏤" : "󰐊" })
+        (button :class "tx-btn tx-next"
+                :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh next"
+                "󰒭"))
+
+      ;; Volume capsule. Speaker glyph + horizontal fader, both held
+      ;; inside a single HANCORE-style sub-instrument.
+      (box :class "volume-row"
+           :orientation "h"
+           :spacing 6
+           :space-evenly false
+        (label :class "vol-icon" :text "󰕾")
+        (scale :class "volume"
+               :value p_volume
+               :min 0 :max 100
+               :onchange "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/volume.sh set {}"
+               :hexpand true)))))
+
+;; ── Window ───────────────────────────────────────────────────────
+;;
+;; Anchored top-left at x ≈ 300, which approximates the Media Rail's
+;; x position in the merged HANCORE layout (after custom/omarchy,
+;; hyprland/workspaces, idle_inhibitor, custom/updatespacman,
+;; group/tray-expander). The popup should appear directly beneath
+;; the rail; tune the x value to match the user's actual rail
+;; position and `eww reload`.
+
+(defwindow media-controls
+  :monitor 0
+  :stacking "overlay"
+  :focusable false
+  :geometry (geometry :anchor "top left"
+                      :x "300"
+                      :y "32"
+                      :width "360px")
+  (media-controls))

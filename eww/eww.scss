@@ -1,0 +1,238 @@
+// Devvychrome — Media Controls Popup styling (eww v1.5)
+//
+// Visual language:
+//   - HANCORE V2.1c capsule treatment is the chassis idiom and is
+//     applied to the outer popup, the album-art frame, the
+//     transport row, and the volume row. Each carries the same
+//     2px solid #111 border, 4px corner radius, and a hard 1px
+//     drop shadow at full opacity. The repetition is deliberate:
+//     it makes every interior element read as a sub-instrument
+//     mounted on the same chassis.
+//   - Internal subdivisions (the dividers between transport keys)
+//     are softer (1px #2b2b2b) so they read as panel etching, not
+//     as more capsules.
+//   - Hierarchy is luminance-only. There is no accent colour at
+//     any luminance band; every value is grayscale.
+//
+// Compiles to GTK CSS via libsass. Selectors must match GTK widget
+// names (trough, highlight, slider) — not web-CSS conventions.
+
+* {
+    font-family: 'CaskaydiaCove Nerd Font Propo',
+                 'JetBrainsMono Nerd Font',
+                 sans-serif;
+    font-size: 12px;
+    color: #c8c8c8;
+    text-shadow: none;
+    -gtk-icon-shadow: none;
+}
+
+// ── Outer chassis ───────────────────────────────────────────────
+.popup {
+    background-color: rgba(29, 29, 29, 0.97);   // backgrounds.secondary
+    border: 2px solid #111111;                  // HANCORE border-active
+    border-radius: 4px;
+    padding: 16px 16px 12px 16px;
+    // Soft outer elevation. Smaller than a card shadow on purpose;
+    // the HANCORE language uses tight, dark shadows, not aerial drift.
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+// ── Album art frame ─────────────────────────────────────────────
+// Capsule treatment matches the chassis so the art reads as a
+// permanent panel inset, not a rectangle laid on top.
+.art-frame {
+  min-width: 80px;
+  min-height: 80px;
+  padding: 0;
+  margin: 0;
+  border-radius: 4px;
+  border: 2px solid #111111;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+}
+
+// ── Metadata block ──────────────────────────────────────────────
+// Tight vertical rhythm: 1–2px between lines, then a clean break
+// before the progress row. Title is the only bright element.
+.metadata {
+    margin-bottom: 10px;
+}
+
+.title {
+    color: #e0e0e0;                             // text.primary
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+}
+
+.artist {
+    color: #c8c8c8;                             // text.secondary
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 1px;
+}
+
+.album {
+    color: #6f6f6f;                             // text.disabled — recessed
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.4px;                      // slight tracking; "label" feel
+    margin-top: 2px;
+}
+
+// ── Progress row ────────────────────────────────────────────────
+// Read-only meter with a tabular time readout. Trough sits at the
+// chassis-floor luminance (#161616) so the meter looks etched into
+// the panel; the filled highlight is the brightest static element
+// in this strip after the title.
+.progress-row {
+    margin-bottom: 8px;
+}
+
+.position {
+    color: #6f6f6f;                             // text.disabled
+    font-size: 10px;
+    
+    margin-left: 4px;
+}
+
+.progress {
+    trough {
+        background-color: #161616;
+        min-height: 3px;
+        border: none;
+        border-radius: 1px;
+    }
+    trough highlight {
+        background-color: #c8c8c8;              // text.secondary
+        min-height: 3px;
+        border-radius: 1px;
+        border: none;
+    }
+    slider {
+        // Hidden — progress is a meter, not a seeker.
+        opacity: 0;
+        background-color: transparent;
+        background-image: none;
+        min-width: 0;
+        min-height: 0;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+// ── Transport capsule ───────────────────────────────────────────
+// Three icon-cells inside a single HANCORE capsule, separated only
+// by 1px etched rules. Reads as one three-key instrument, not as
+// three independent buttons.
+.transport {
+    background-color: #1d1d1d;
+    border: 2px solid #111111;
+    border-radius: 4px;
+    padding: 0;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 1);     // HANCORE engraved shadow
+}
+
+.tx-btn {
+    background-color: transparent;
+    background-image: none;
+    color: #9a9a9a;                             // text.muted at rest
+    border: none;
+    border-right: 1px solid #2b2b2b;            // soft etched divider
+    border-radius: 0;
+    padding: 6px 0;
+    font-size: 16px;                            // proper icon size
+    font-weight: 400;
+    text-shadow: none;
+    box-shadow: none;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.tx-btn:last-child {
+    border-right: none;
+}
+
+.tx-btn:hover {
+    background-color: #242424;                  // surfaces.surface
+    color: #e0e0e0;                             // text.primary
+}
+
+.tx-btn:active {
+    background-color: #2b2b2b;                  // surfaces.elevated
+}
+
+.tx-btn.tx-play {
+    color: #c8c8c8;                             // brightest at rest of the three
+}
+
+// ── Volume capsule ──────────────────────────────────────────────
+// Same chassis idiom as the transport row. The slider thumb is a
+// quiet circle so it reads as a fader handle, not a button.
+.volume-row {
+    background-color: #1d1d1d;
+    border: 2px solid #111111;
+    
+    
+    border-radius: 4px;
+    padding: 4px 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 1);
+}
+
+.vol-icon {
+    color: #9a9a9a;                             // text.muted
+    font-size: 13px;
+    margin-right: 2px;
+}
+
+.volume {
+    trough {
+        background-color: #161616;
+        min-height: 3px;
+        border: none;
+        border-radius: 1px;
+    }
+    trough highlight {
+        background-color: #9a9a9a;              // text.muted — quieter than the progress meter
+        min-height: 3px;
+        border-radius: 1px;
+    }
+    slider {
+        background-color: #c8c8c8;              // text.secondary
+        background-image: none;
+        min-width: 10px;
+        min-height: 10px;
+        border-radius: 5px;
+        border: 1px solid #1d1d1d;              // tiny ring matching the capsule bg
+        box-shadow: none;
+        transition: background-color 120ms ease;
+    }
+    slider:hover {
+        background-color: #e0e0e0;              // text.primary on hover
+    }
+}
+
+.album-art {
+  min-width: 80px;
+  min-height: 80px;
+  border-radius: 4px;
+  border: 2px solid #111111;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+}
+
+
+/* Final art-frame correction: collapse wrapper, style image only */
+.art-frame {
+  padding: 0;
+  margin: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  min-width: 80px;
+  min-height: 80px;
+}
+
+.art-frame image {
+  border-radius: 4px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+}

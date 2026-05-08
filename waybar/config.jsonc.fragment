@@ -64,7 +64,10 @@
     // Dynamic content is pre-pango-escaped inside the script.
     "escape": false,
     "on-click":       "$DEVVYCHROME_REPO/scripts/media/control.sh play-pause",
-    "on-click-right": "$DEVVYCHROME_REPO/scripts/media/menu.sh",
+    // Right-click toggles the eww Media Controls popup. popup.sh
+    // falls back to the rofi menu (menu.sh) automatically when eww
+    // is not installed, so transport control is always reachable.
+    "on-click-right": "$DEVVYCHROME_REPO/scripts/media/popup.sh",
     "on-scroll-up":   "$DEVVYCHROME_REPO/scripts/media/control.sh previous",
     "on-scroll-down": "$DEVVYCHROME_REPO/scripts/media/control.sh next"
   },
