@@ -1,18 +1,21 @@
 // Devvychrome — Media Controls Popup styling (eww v1.5)
 //
-// Visual language:
-//   - HANCORE V2.1c capsule treatment is the chassis idiom and is
-//     applied to the outer popup, the album-art frame, the
-//     transport row, and the volume row. Each carries the same
-//     2px solid #111 border, 4px corner radius, and a hard 1px
-//     drop shadow at full opacity. The repetition is deliberate:
-//     it makes every interior element read as a sub-instrument
-//     mounted on the same chassis.
-//   - Internal subdivisions (the dividers between transport keys)
-//     are softer (1px #2b2b2b) so they read as panel etching, not
-//     as more capsules.
-//   - Hierarchy is luminance-only. There is no accent colour at
-//     any luminance band; every value is grayscale.
+// Layout assumptions (must stay in sync with eww.yuck):
+//   - popup is :orientation "v"; transport and volume-row are
+//     direct children of .popup, not nested under .details.
+//   - top-row hosts .art-frame and .details side-by-side.
+//   - window is 460×220 on monitor 1.
+//
+// HANCORE V2.1c capsule treatment (2px solid #111 border, 4px
+// radius, hard 1px engraved shadow) is the chassis idiom and is
+// applied to .transport and .volume-row. The outer .popup carries
+// the same border/radius treatment but no outer drop shadow — the
+// popup chassis is the window content and any outward shadow would
+// risk clipping at the window boundary.
+//
+// The album art sits in .art-frame (a transparent wrapper) and
+// carries its own floating shadow on the inner image element. All
+// hierarchy is luminance-only; saturation is held at zero.
 //
 // Compiles to GTK CSS via libsass. Selectors must match GTK widget
 // names (trough, highlight, slider) — not web-CSS conventions.
@@ -32,30 +35,42 @@
     background-color: rgba(29, 29, 29, 0.97);   // backgrounds.secondary
     border: 2px solid #111111;                  // HANCORE border-active
     border-radius: 4px;
-    padding: 16px 16px 12px 16px;
-    // Soft outer elevation. Smaller than a card shadow on purpose;
-    // the HANCORE language uses tight, dark shadows, not aerial drift.
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+    padding: 16px;
 }
 
-// ── Album art frame ─────────────────────────────────────────────
-// Capsule treatment matches the chassis so the art reads as a
-// permanent panel inset, not a rectangle laid on top.
+// ── Top row ─────────────────────────────────────────────────────
+// Marker class for selection / future tweaks. No styling yet.
+.top-row { }
+
+.details { }
+
+// ── Album art ───────────────────────────────────────────────────
+// Wrapper is transparent so the inner image is the only thing the
+// shadow attaches to — the art reads as a panel inset, floating
+// quietly above the chassis, not as a framed card.
 .art-frame {
-  min-width: 80px;
-  min-height: 80px;
-  padding: 0;
-  margin: 0;
-  border-radius: 4px;
-  border: 2px solid #111111;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    min-width: 80px;
+    min-height: 80px;
 }
 
-// ── Metadata block ──────────────────────────────────────────────
-// Tight vertical rhythm: 1–2px between lines, then a clean break
-// before the progress row. Title is the only bright element.
+.art-frame image {
+    border-radius: 4px;
+    // 0 4px 10px keeps the shadow's leftward feathering inside the
+    // popup's 16px left padding (10px blur leaves a 6px margin
+    // between shadow tail and chassis edge).
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55);
+}
+
+// ── Metadata ────────────────────────────────────────────────────
+// Tight vertical rhythm inside the metadata block; one clean break
+// before the progress row.
 .metadata {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .title {
@@ -76,23 +91,22 @@
     color: #6f6f6f;                             // text.disabled — recessed
     font-size: 10px;
     font-weight: 400;
-    letter-spacing: 0.4px;                      // slight tracking; "label" feel
+    letter-spacing: 0.4px;                      // slight tracking for "label" feel
     margin-top: 2px;
 }
 
 // ── Progress row ────────────────────────────────────────────────
-// Read-only meter with a tabular time readout. Trough sits at the
+// Read-only meter with a tabular time readout. Trough is at the
 // chassis-floor luminance (#161616) so the meter looks etched into
-// the panel; the filled highlight is the brightest static element
-// in this strip after the title.
+// the panel; the highlight is the brightest static element below
+// the title.
 .progress-row {
-    margin-bottom: 8px;
+    margin-top: 4px;
 }
 
 .position {
     color: #6f6f6f;                             // text.disabled
     font-size: 10px;
-    
     margin-left: 4px;
 }
 
@@ -106,11 +120,10 @@
     trough highlight {
         background-color: #c8c8c8;              // text.secondary
         min-height: 3px;
-        border-radius: 1px;
         border: none;
+        border-radius: 1px;
     }
     slider {
-        // Hidden — progress is a meter, not a seeker.
         opacity: 0;
         background-color: transparent;
         background-image: none;
@@ -122,15 +135,15 @@
 }
 
 // ── Transport capsule ───────────────────────────────────────────
-// Three icon-cells inside a single HANCORE capsule, separated only
-// by 1px etched rules. Reads as one three-key instrument, not as
-// three independent buttons.
+// One HANCORE capsule split into three icon-cells by 1px etched
+// rules. Sized by space-evenly distribution at the .popup level —
+// no min-width on .tx-btn is needed; the cells stretch to fill the
+// chassis width.
 .transport {
     background-color: #1d1d1d;
     border: 2px solid #111111;
     border-radius: 4px;
     padding: 0;
-    margin-bottom: 6px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 1);     // HANCORE engraved shadow
 }
 
@@ -141,7 +154,7 @@
     border: none;
     border-right: 1px solid #2b2b2b;            // soft etched divider
     border-radius: 0;
-    padding: 6px 0;
+    padding: 8px 0;
     font-size: 16px;                            // proper icon size
     font-weight: 400;
     text-shadow: none;
@@ -163,26 +176,25 @@
 }
 
 .tx-btn.tx-play {
-    color: #c8c8c8;                             // brightest at rest of the three
+    color: #c8c8c8;                             // brightest of the three at rest
 }
 
 // ── Volume capsule ──────────────────────────────────────────────
-// Same chassis idiom as the transport row. The slider thumb is a
-// quiet circle so it reads as a fader handle, not a button.
+// Same chassis idiom as the transport row. Hexpand at the .popup
+// level pushes the row to the full chassis width; the slider has
+// hexpand inside, so the fader fills the row.
 .volume-row {
     background-color: #1d1d1d;
     border: 2px solid #111111;
-    
-    
     border-radius: 4px;
-    padding: 4px 10px;
+    padding: 5px 12px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 1);
 }
 
 .vol-icon {
     color: #9a9a9a;                             // text.muted
     font-size: 13px;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 
 .volume {
@@ -193,7 +205,7 @@
         border-radius: 1px;
     }
     trough highlight {
-        background-color: #9a9a9a;              // text.muted — quieter than the progress meter
+        background-color: #9a9a9a;              // quieter than the progress meter
         min-height: 3px;
         border-radius: 1px;
     }
@@ -210,29 +222,4 @@
     slider:hover {
         background-color: #e0e0e0;              // text.primary on hover
     }
-}
-
-.album-art {
-  min-width: 80px;
-  min-height: 80px;
-  border-radius: 4px;
-  border: 2px solid #111111;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
-}
-
-
-/* Final art-frame correction: collapse wrapper, style image only */
-.art-frame {
-  padding: 0;
-  margin: 0;
-  border: none;
-  box-shadow: none;
-  background: transparent;
-  min-width: 80px;
-  min-height: 80px;
-}
-
-.art-frame image {
-  border-radius: 4px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
 }
