@@ -223,3 +223,16 @@
         background-color: #e0e0e0;              // text.primary on hover
     }
 }
+
+/* Kill square Eww/GTK window bleed behind rounded popup */
+window,
+window.background,
+.background {
+  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+* {
+  background-clip: padding-box;
+}
