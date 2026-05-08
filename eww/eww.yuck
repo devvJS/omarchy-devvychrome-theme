@@ -1,0 +1,164 @@
+;; Devvychrome — Media Controls Popup (eww v1.5)
+;;
+;; Architectural surface that reads as the Media Rail unfolding
+;; downward. Layout is a vertical popup with three children:
+;;
+;;   popup (v)
+;;     ├── top-row (h) — album art + metadata/progress column
+;;     ├── transport   — three-cell capsule, fills width
+;;     └── volume-row  — icon + fader capsule, fills width
+;;
+;; Transport and volume sit at the popup's level — not nested inside
+;; the right column — so they centre relative to the whole chassis,
+;; not relative to a sub-region.
+;;
+;; Repo-local: launched only by scripts/media/popup.sh, which runs
+;; `eww --config <repo>/eww`. The user's existing eww config (if
+;; any) is not touched. Bound to the Media Rail's right-click via
+;; waybar/config.jsonc.fragment.
+
+(defvar repo  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme")
+(defvar media "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media")
+
+;; ── State polling ────────────────────────────────────────────────
+;; Helper scripts emit benign defaults on any failure path so the
+;; popup never renders error strings.
+
+(defpoll p_status :interval "1s" :initial "Stopped"
+  "playerctl status 2>/dev/null || echo Stopped")
+
+(defpoll p_title :interval "1s" :initial ""
+  "playerctl metadata --format '{{ title }}' 2>/dev/null || true")
+
+(defpoll p_artist :interval "1s" :initial ""
+  "playerctl metadata --format '{{ artist }}' 2>/dev/null || true")
+
+(defpoll p_album :interval "1s" :initial ""
+  "playerctl metadata --format '{{ album }}' 2>/dev/null || true")
+
+(defpoll p_progress :interval "1s" :initial "0"
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/progress.sh pct")
+
+(defpoll p_position :interval "1s" :initial "—"
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/progress.sh time")
+
+(defpoll p_art :interval "2s" :initial ""
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/art-or-placeholder.sh")
+
+(defpoll p_volume :interval "2s" :initial "50"
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/volume.sh get")
+
+;; ── Widget ───────────────────────────────────────────────────────
+
+(defwidget media-controls []
+  (box :class "popup"
+       :orientation "v"
+       :spacing 12
+       :space-evenly false
+
+    ;; ── Top row: album art + metadata/progress column ───────────
+    (box :class "top-row"
+         :orientation "h"
+         :spacing 14
+         :space-evenly false
+
+      (box :class "art-frame"
+           :orientation "v"
+           :hexpand false
+           :vexpand false
+           :valign "start"
+        (image :path p_art :image-width 80 :image-height 80))
+
+      (box :class "details"
+           :orientation "v"
+           :hexpand true
+           :valign "start"
+           :space-evenly false
+
+        (box :class "metadata"
+             :orientation "v"
+             :space-evenly false
+          (label :class "title"
+                 :text { p_title != "" ? p_title : "—" }
+                 :limit-width 36
+                 :truncate true
+                 :xalign 0)
+          (label :class "artist"
+                 :text p_artist
+                 :limit-width 36
+                 :truncate true
+                 :xalign 0
+                 :visible { p_artist != "" })
+          (label :class "album"
+                 :text p_album
+                 :limit-width 36
+                 :truncate true
+                 :xalign 0
+                 :visible { p_album != "" }))
+
+        (box :class "progress-row"
+             :orientation "h"
+             :spacing 8
+             :space-evenly false
+          (scale :class "progress"
+                 :value p_progress
+                 :min 0 :max 100
+                 :active false
+                 :hexpand true)
+          (label :class "position" :text p_position))))
+
+    ;; ── Transport capsule ──────────────────────────────────────
+    ;; hexpand + space-evenly distributes three cells across the
+    ;; full popup content width. The capsule therefore matches the
+    ;; volume-row width below by construction.
+    (box :class "transport"
+         :orientation "h"
+         :hexpand true
+         :space-evenly true
+      (button :class "tx-btn tx-prev"
+              :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh previous"
+              "󰒮")
+      (button :class "tx-btn tx-play"
+              :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh play-pause"
+              { p_status == "Playing" ? "󰏤" : "󰐊" })
+      (button :class "tx-btn tx-next"
+              :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh next"
+              "󰒭"))
+
+    ;; ── Volume capsule ─────────────────────────────────────────
+    ;; hexpand on both the row and the inner scale — the fader
+    ;; spans the full popup content width, exactly aligned with
+    ;; the transport capsule above.
+    (box :class "volume-row"
+         :orientation "h"
+         :spacing 8
+         :hexpand true
+         :space-evenly false
+      (label :class "vol-icon" :text "󰕾")
+      (scale :class "volume"
+             :value p_volume
+             :min 0 :max 100
+             :onchange "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/volume.sh set {}"
+             :hexpand true))))
+
+;; ── Window ───────────────────────────────────────────────────────
+;;
+;; Monitor 1 is the Dell AW3423DW per eww's monitor map.
+;;
+;; Width 460 / height 220 was chosen so the chassis (border + 16px
+;; padding + content ≈ 200×164) fits inside the window without the
+;; popup's content needing to shrink to fit. Content has natural
+;; vertical slack under the popup's last child; this is preferred
+;; over forcing the popup to fill via vexpand, which would create
+;; the dead empty boxes the rebuild was meant to eliminate.
+
+(defwindow media-controls
+  :monitor 1
+  :stacking "overlay"
+  :focusable false
+  :geometry (geometry :anchor "top left"
+                      :x "300"
+                      :y "32"
+                      :width "460px"
+                      :height "220px")
+  (media-controls))
