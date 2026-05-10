@@ -73,16 +73,6 @@ window#waybar {
     color: #9a9a9a;                       /* text.muted */
 }
 
-/* Wave: integrated, not appended. Sits flush against the progress
- * meter on the left, with capsule-edge breathing room provided by
- * the group's right padding. Held one step below the meter's fill
- * luminance so it is never the loudest element. */
-#custom-wave {
-    color: #9a9a9a;                       /* text.muted */
-    padding: 0 0 0 6px;
-    letter-spacing: 0;
-}
-
 /* ─────────────────────────────────────────────────────────────── */
 
 #workspaces button,
