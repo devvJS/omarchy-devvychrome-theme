@@ -68,16 +68,27 @@ if ! command -v playerctl >/dev/null 2>&1; then
     exit 0
 fi
 
-# Single playerctl invocation pinned to one player. Splitting status
-# and metadata across multiple calls let playerctl land on different
-# players between calls (especially during track transitions or with
-# multiple active MPRIS clients), which is the most common cause of
-# the artist field flickering empty. ASCII unit-separator (\x1F) is
-# used to delimit fields so any natural punctuation in titles or
-# album names passes through cleanly.
+# Pick the right player BEFORE any metadata fetch. Without this, a
+# stopped Chromium tab can suppress an actively-playing Spotify
+# instance because playerctl's default selects the first available
+# player rather than the one actually producing audio.
+SELF_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+source "$SELF_DIR/lib/player.sh"
+
+if ! devvychrome_pick_player; then
+    emit_idle "$GLYPH_IDLE" "No active player" "idle"
+fi
+
+# Single playerctl invocation pinned to the selected player. Splitting
+# status and metadata across multiple calls let playerctl land on
+# different players between calls during track transitions, which is
+# the second most common cause of artist-flicker bugs. ASCII unit-
+# separator (\x1F) delimits fields so any natural punctuation in
+# titles or album names passes through cleanly.
 SEP=$'\x1f'
 fmt="{{status}}${SEP}{{xesam:artist}}${SEP}{{xesam:albumArtist}}${SEP}{{xesam:title}}${SEP}{{xesam:album}}${SEP}{{mpris:length}}"
-data=$(playerctl metadata --format "$fmt" 2>/dev/null || true)
+data=$(playerctl --player="$DEVVYCHROME_PLAYER" metadata --format "$fmt" 2>/dev/null || true)
 
 if [[ -z "$data" ]]; then
     emit_idle "$GLYPH_IDLE" "No active player" "idle"
@@ -100,10 +111,10 @@ if [[ -z "$artist" ]]; then
     artist="$album_artist"
 fi
 
-# Position is a runtime property, not metadata; fetched separately.
-# Slight race versus the metadata block is acceptable — it only
-# affects the progress percentage by a tick.
-pos=$(playerctl position 2>/dev/null || true)
+# Position is a runtime property, not metadata; fetched separately
+# on the same player. Slight race versus the metadata block is
+# acceptable — it only affects the progress percentage by a tick.
+pos=$(playerctl --player="$DEVVYCHROME_PLAYER" position 2>/dev/null || true)
 
 # Luminance bands per playback state. Playing carries one bright
 # beacon (the glyph) and one prominent readout (the progress fill);

@@ -102,8 +102,7 @@ Then, by hand:
 
 | Tool        | Required for                                  | Fallback if missing                       |
 | ----------- | --------------------------------------------- | ----------------------------------------- |
-| `playerctl` | `now-playing.sh`, `control.sh`, `menu.sh`     | Rail renders empty / scripts exit silently |
-| `cava`      | `wave.sh` (optional waveform layer)           | Waveform module disappears; ribbon stays  |
+| `playerctl` | `now-playing.sh`, `control.sh`, `menu.sh`, `progress.sh`, `art.sh`, `wave.sh` | Rail renders empty / scripts exit silently |
 | `rofi`      | `menu.sh` (right-click fallback)              | Menu does nothing                          |
 | `curl` *or* `wget` | `art.sh` http(s) art fetch             | `art.sh` exits silently                    |
 | `magick`/`convert` *or* `ffmpeg` | `art.sh` desaturation     | `art.sh` exits silently                    |

@@ -74,7 +74,7 @@
 
   "custom/wave": {
     "exec": "$DEVVYCHROME_REPO/scripts/media/wave.sh",
-    "exec-if": "command -v cava >/dev/null 2>&1",
+    "exec-if": "command -v playerctl >/dev/null 2>&1",
     "format": "{}",
     "tooltip": false,
     "escape": false
