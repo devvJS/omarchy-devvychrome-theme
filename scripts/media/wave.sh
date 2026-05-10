@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
-# Devvychrome — wave.sh (deterministic v3, fixed-position)
+# Devvychrome — wave.sh (deterministic v4, in-place breathing)
 #
-# An 8-cell static meter for the Media Rail. No motion. No traveling
-# peak, no ping-pong scan. The cells stay at fixed positions and the
-# whole row simply selects one of three flat patterns based on the
-# active player's status:
+# An 8-cell meter for the Media Rail. Each cell is anchored to its
+# position; nothing ever travels left or right. While a player is
+# Playing the row breathes vertically through a hand-tuned 16-frame
+# cycle in which each frame differs from the previous by at most a
+# couple of cells, each by a single level. The result is subtle
+# in-place motion that reads as a quiet instrument meter, not as an
+# equalizer.
 #
-#   Playing  → ▃▃▃▃▃▃▃▃   (mid-low static — meter is "on")
-#   Paused   → ▂▂▂▂▂▂▂▂   (one step lower — meter is "held")
-#   else     → ▁▁▁▁▁▁▁▁   (baseline — meter is "off")
+# State patterns:
+#   Playing  → 16-frame cycle, gentle central hill, edges quiet
+#   Paused   → static low hump (dim, no motion)
+#   else     → flat baseline (recessed)
 #
-# Width is a compile-time constant (BARS), so Waybar never reflows
-# the capsule. Updates fire at TICK seconds; if the status hasn't
-# changed since the last frame, Waybar redraws an identical line.
-#
-# Active player is resolved via lib/player.sh, the same selector the
-# Waybar rail and the eww popup use, so a stopped Chromium tab
-# cannot pull the meter to baseline while Spotify is actually
-# playing.
-#
-# Defensive: if playerctl is missing, exit silently. The Rail's
-# progress ribbon (now-playing.sh) remains.
+# Width is exactly BARS glyphs every frame, so Waybar never reflows
+# the capsule. Active player is resolved via lib/player.sh, the same
+# selector the rail and the eww popup use.
 
 set -u
 
@@ -33,17 +29,50 @@ SELF_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
 source "$SELF_DIR/lib/player.sh"
 
 BARS=8
-TICK=2
+TICK=0.5
 
-playing=""
-paused=""
-baseline=""
-for ((i=0; i<BARS; i++)); do
-    playing+="▃"
-    paused+="▂"
-    baseline+="▁"
-done
+# Index 0..7 → ▁▂▃▄▅▆▇█. Edge cells are kept at 0–1 across the cycle
+# so the row's silhouette stays a soft central hump rather than a
+# scrolling waveform.
+GLYPHS=( '▁' '▂' '▃' '▄' '▅' '▆' '▇' '█' )
 
+# 16 frames of the Playing pattern. Each entry is exactly BARS
+# digits, one per cell. Constraint: between any two adjacent frames
+# (including the wrap from last to first) no cell moves by more than
+# one level, and no more than three cells move at once. This keeps
+# the motion quiet and prevents any perception of horizontal travel.
+PLAY_FRAMES=(
+    "01232100"
+    "01233100"
+    "01234100"
+    "01244200"
+    "01345200"
+    "01345200"
+    "01344200"
+    "01233200"
+    "01233100"
+    "01232100"
+    "01122100"
+    "01232100"
+    "01233200"
+    "01233100"
+    "01232100"
+    "00122100"
+)
+
+PAUSED_FRAME="00112100"   # ▁▁▂▂▃▂▁▁ — static low hump
+BASELINE_FRAME="00000000" # ▁▁▁▁▁▁▁▁ — recessed baseline
+
+render() {
+    local pattern=$1 out="" i d
+    for ((i=0; i<BARS; i++)); do
+        d="${pattern:i:1}"
+        out+="${GLYPHS[d]}"
+    done
+    printf '%s\n' "$out"
+}
+
+phase=0
 while :; do
     status=""
     if devvychrome_pick_player; then
@@ -51,9 +80,16 @@ while :; do
     fi
 
     case "$status" in
-        Playing) printf '%s\n' "$playing"  ;;
-        Paused)  printf '%s\n' "$paused"   ;;
-        *)       printf '%s\n' "$baseline" ;;
+        Playing)
+            render "${PLAY_FRAMES[phase]}"
+            phase=$(( (phase + 1) % ${#PLAY_FRAMES[@]} ))
+            ;;
+        Paused)
+            render "$PAUSED_FRAME"
+            ;;
+        *)
+            render "$BASELINE_FRAME"
+            ;;
     esac
 
     sleep "$TICK"
