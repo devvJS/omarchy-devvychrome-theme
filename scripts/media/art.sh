@@ -31,7 +31,15 @@ if ! command -v playerctl >/dev/null 2>&1; then
     exit 0
 fi
 
-art_url=$(playerctl metadata --format '{{ mpris:artUrl }}' 2>/dev/null || true)
+# Resolve the active player so the art URL comes from the same
+# player the rail is currently showing.
+SELF_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+source "$SELF_DIR/lib/player.sh"
+
+devvychrome_pick_player || exit 0
+
+art_url=$(playerctl --player="$DEVVYCHROME_PLAYER" metadata --format '{{ mpris:artUrl }}' 2>/dev/null || true)
 [[ -z "$art_url" ]] && exit 0
 
 force=0
