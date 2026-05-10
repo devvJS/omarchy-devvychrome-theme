@@ -1,0 +1,5 @@
+{ "label" : "lock",     "action" : "omarchy-system-lock",     "text" : "LOCK   [L]",     "keybind" : "l", "height" : 0.80 }
+{ "label" : "logout",   "action" : "omarchy-system-logout",   "text" : "LOG OUT   [E]",  "keybind" : "e", "height" : 0.80 }
+{ "label" : "suspend",  "action" : "systemctl suspend",       "text" : "SUSPEND   [U]",  "keybind" : "u", "height" : 0.80 }
+{ "label" : "reboot",   "action" : "omarchy-system-reboot",   "text" : "REBOOT   [R]",   "keybind" : "r", "height" : 0.80 }
+{ "label" : "shutdown", "action" : "omarchy-system-shutdown", "text" : "SHUTDOWN   [S]", "keybind" : "s", "height" : 0.80 }
