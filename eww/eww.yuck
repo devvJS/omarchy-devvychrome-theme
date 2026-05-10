@@ -17,18 +17,25 @@
 ;; ── State polling ────────────────────────────────────────────────
 ;; Every poll is defensive: helper scripts emit a benign default on
 ;; any failure path so the popup never renders an error string.
+;;
+;; status / title / artist / album go through scripts/media/state.sh
+;; so the popup uses the same active-player selection logic as the
+;; Waybar rail (lib/player.sh). Without this, the popup reads the
+;; first player playerctl picks by default — typically a stopped
+;; Chromium tab — and the play/pause button shows the wrong icon
+;; while Spotify is actually playing.
 
 (defpoll p_status :interval "1s" :initial "Stopped"
-  "playerctl status 2>/dev/null || echo Stopped")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh status")
 
 (defpoll p_title :interval "1s" :initial ""
-  "playerctl metadata --format '{{ title }}' 2>/dev/null || true")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh title")
 
 (defpoll p_artist :interval "1s" :initial ""
-  "playerctl metadata --format '{{ artist }}' 2>/dev/null || true")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh artist")
 
 (defpoll p_album :interval "1s" :initial ""
-  "playerctl metadata --format '{{ album }}' 2>/dev/null || true")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh album")
 
 (defpoll p_progress :interval "1s" :initial "0"
   "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/progress.sh pct")
@@ -46,84 +53,96 @@
 
 (defwidget media-controls []
   (box :class "popup"
-       :orientation "h"
-       :spacing 12
+       :orientation "v"
+       :spacing 6
        :space-evenly false
-    ;; Album art frame — HANCORE capsule treatment via .art-frame.
-    (box :class "art-frame"
-         :orientation "v"
+    ;; Top row — art and details side-by-side. Held inside its own
+    ;; horizontal box so transport and volume below remain direct
+    ;; children of .popup and can stretch the full popup width.
+    (box :class "top-row"
+         :orientation "h"
+         :spacing 12
          :space-evenly false
-         :hexpand false
-         :vexpand false
-      (image :path p_art :image-width 80 :image-height 80))
-
-    ;; Details column.
-    (box :class "details"
-         :orientation "v"
-         :space-evenly false
-         :hexpand true
-      ;; Metadata block: title / artist / album. Recessed sub-grid.
-      (box :class "metadata"
+      ;; Album art. The .art-frame wrapper is intentionally
+      ;; transparent in CSS; the shadow lives on the inner image so
+      ;; it never bleeds outside the artwork rectangle.
+      (box :class "art-frame"
            :orientation "v"
            :space-evenly false
-        (label :class "title"
-               :text { p_title != "" ? p_title : "—" }
-               :limit-width 28
-               :truncate true
-               :xalign 0)
-        (label :class "artist"
-               :text p_artist
-               :limit-width 28
-               :truncate true
-               :xalign 0
-               :visible { p_artist != "" })
-        (label :class "album"
-               :text p_album
-               :limit-width 28
-               :truncate true
-               :xalign 0
-               :visible { p_album != "" }))
+           :hexpand false
+           :vexpand false
+        (image :path p_art :image-width 80 :image-height 80))
 
-      ;; Progress row: thin meter + tabular time.
-      (box :class "progress-row"
-           :orientation "h"
-           :spacing 8
+      ;; Details column — metadata stack and progress meter.
+      (box :class "details"
+           :orientation "v"
            :space-evenly false
-        (scale :class "progress"
-               :value p_progress
-               :min 0 :max 100
-               :active false
-               :hexpand true)
-        (label :class "position" :text p_position))
+           :hexpand true
+        ;; Metadata block: title / artist / album.
+        (box :class "metadata"
+             :orientation "v"
+             :space-evenly false
+          (label :class "title"
+                 :text { p_title != "" ? p_title : "—" }
+                 :limit-width 28
+                 :truncate true
+                 :xalign 0)
+          (label :class "artist"
+                 :text p_artist
+                 :limit-width 28
+                 :truncate true
+                 :xalign 0
+                 :visible { p_artist != "" })
+          (label :class "album"
+                 :text p_album
+                 :limit-width 28
+                 :truncate true
+                 :xalign 0
+                 :visible { p_album != "" }))
 
-      ;; Transport capsule. Three icon-cells joined by 1px dividers
-      ;; so the row reads as a single instrument with three keys.
-      (box :class "transport"
-           :orientation "h"
-           :space-evenly true
-           :halign "fill"
-        (button :class "tx-btn tx-prev"
-                :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh previous"
-                "󰒮")
-        (button :class "tx-btn tx-play"
-                :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh play-pause"
-                { p_status == "Playing" ? "󰏤" : "󰐊" })
-        (button :class "tx-btn tx-next"
-                :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh next"
-                "󰒭"))
+        ;; Progress row: thin meter + tabular time.
+        (box :class "progress-row"
+             :orientation "h"
+             :spacing 8
+             :space-evenly false
+          (scale :class "progress"
+                 :value p_progress
+                 :min 0 :max 100
+                 :active false
+                 :hexpand true)
+          (label :class "position" :text p_position))))
 
-      ;; Volume capsule. Speaker glyph + horizontal fader, both held
-      ;; inside a single HANCORE-style sub-instrument.
-      (box :class "volume-row"
-           :orientation "h"
-           :spacing 6
-           :space-evenly false
-        (label :class "vol-icon" :text "󰕾")
-        (scale :class "volume"
-               :value p_volume
-               :min 0 :max 100
-               :onchange "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/volume.sh set {}"
-               :hexpand true)))))
+    ;; Transport capsule — direct child of .popup so it spans the full
+    ;; popup content width. Three icon-cells joined by 1px dividers
+    ;; read as one three-key instrument.
+    (box :class "transport"
+         :orientation "h"
+         :space-evenly true
+         :halign "fill"
+         :hexpand true
+      (button :class "tx-btn tx-prev"
+              :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh previous"
+              "󰒮")
+      (button :class "tx-btn tx-play"
+              :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh play-pause"
+              { p_status == "Playing" ? "󰏤" : "󰐊" })
+      (button :class "tx-btn tx-next"
+              :onclick "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/control.sh next"
+              "󰒭"))
+
+    ;; Volume capsule — direct child of .popup, full popup width.
+    (box :class "volume-row"
+         :orientation "h"
+         :spacing 6
+         :space-evenly false
+         :halign "fill"
+         :hexpand true
+      (label :class "vol-icon" :text "󰕾")
+      (scale :class "volume"
+             :value p_volume
+             :min 0 :max 100
+             :onchange "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/volume.sh set {}"
+             :hexpand true))))
 
 ;; ── Window ───────────────────────────────────────────────────────
 ;;
@@ -135,7 +154,7 @@
 ;; position and `eww reload`.
 
 (defwindow media-controls
-  :monitor 0
+  :monitor 1
   :stacking "overlay"
   :focusable false
   :geometry (geometry :anchor "top left"

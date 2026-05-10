@@ -68,17 +68,53 @@ if ! command -v playerctl >/dev/null 2>&1; then
     exit 0
 fi
 
-status=$(playerctl status 2>/dev/null || true)
+# Pick the right player BEFORE any metadata fetch. Without this, a
+# stopped Chromium tab can suppress an actively-playing Spotify
+# instance because playerctl's default selects the first available
+# player rather than the one actually producing audio.
+SELF_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+source "$SELF_DIR/lib/player.sh"
 
-if [[ -z "$status" ]]; then
+if ! devvychrome_pick_player; then
     emit_idle "$GLYPH_IDLE" "No active player" "idle"
 fi
 
-artist=$(playerctl metadata --format '{{ artist }}'        2>/dev/null || true)
-title=$( playerctl metadata --format '{{ title }}'         2>/dev/null || true)
-album=$( playerctl metadata --format '{{ album }}'         2>/dev/null || true)
-pos=$(   playerctl position                                2>/dev/null || true)
-len=$(   playerctl metadata --format '{{ mpris:length }}'  2>/dev/null || true)
+# Single playerctl invocation pinned to the selected player. Splitting
+# status and metadata across multiple calls let playerctl land on
+# different players between calls during track transitions, which is
+# the second most common cause of artist-flicker bugs. ASCII unit-
+# separator (\x1F) delimits fields so any natural punctuation in
+# titles or album names passes through cleanly.
+SEP=$'\x1f'
+fmt="{{status}}${SEP}{{xesam:artist}}${SEP}{{xesam:albumArtist}}${SEP}{{xesam:title}}${SEP}{{xesam:album}}${SEP}{{mpris:length}}"
+data=$(playerctl --player="$DEVVYCHROME_PLAYER" metadata --format "$fmt" 2>/dev/null || true)
+
+if [[ -z "$data" ]]; then
+    emit_idle "$GLYPH_IDLE" "No active player" "idle"
+fi
+
+IFS=$'\x1f' read -r status artist album_artist title album len <<< "$data"
+status=${status:-}
+artist=${artist:-}
+album_artist=${album_artist:-}
+title=${title:-}
+album=${album:-}
+len=${len:-}
+
+# Artist fallback chain. Spotify always populates xesam:artist, but
+# during the brief metadata-refresh window on track changes it can
+# return empty while xesam:albumArtist is still set. Some other
+# players (notably web browser MPRIS) also leave xesam:artist empty
+# but populate xesam:albumArtist. Falling back keeps the rail stable.
+if [[ -z "$artist" ]]; then
+    artist="$album_artist"
+fi
+
+# Position is a runtime property, not metadata; fetched separately
+# on the same player. Slight race versus the metadata block is
+# acceptable — it only affects the progress percentage by a tick.
+pos=$(playerctl --player="$DEVVYCHROME_PLAYER" position 2>/dev/null || true)
 
 # Luminance bands per playback state. Playing carries one bright
 # beacon (the glyph) and one prominent readout (the progress fill);

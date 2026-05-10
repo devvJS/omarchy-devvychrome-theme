@@ -40,15 +40,17 @@
   ],
 
   // ── Devvychrome Media Rail ────────────────────────────────────────
-  // Two custom modules grouped so the Rail reads as one continuous
-  // surface. now-playing carries metadata and the progress ribbon;
-  // wave adds an optional, cava-driven waveform that disappears
-  // silently when cava is missing.
+  // The Rail is a single Waybar custom module: now-playing.sh emits
+  // a pango-marked text string carrying status glyph, artist · title,
+  // and an 8-cell discrete progress ribbon. There is intentionally no
+  // separate visualizer module — Waybar must stay non-jittery, and an
+  // animated meter on the bar caused capsule reflow at every frame.
+  // Real music visualization is reserved for the eww popup, where
+  // graphical rendering is the right tool.
   "group/devvychrome-media-rail": {
     "orientation": "inherit",
     "modules": [
-      "custom/now-playing",
-      "custom/wave"
+      "custom/now-playing"
     ]
   },
 
@@ -70,14 +72,6 @@
     "on-click-right": "$DEVVYCHROME_REPO/scripts/media/popup.sh",
     "on-scroll-up":   "$DEVVYCHROME_REPO/scripts/media/control.sh previous",
     "on-scroll-down": "$DEVVYCHROME_REPO/scripts/media/control.sh next"
-  },
-
-  "custom/wave": {
-    "exec": "$DEVVYCHROME_REPO/scripts/media/wave.sh",
-    "exec-if": "command -v cava >/dev/null 2>&1",
-    "format": "{}",
-    "tooltip": false,
-    "escape": false
   },
   // ──────────────────────────────────────────────────────────────────
 
