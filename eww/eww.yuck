@@ -17,18 +17,25 @@
 ;; ── State polling ────────────────────────────────────────────────
 ;; Every poll is defensive: helper scripts emit a benign default on
 ;; any failure path so the popup never renders an error string.
+;;
+;; status / title / artist / album go through scripts/media/state.sh
+;; so the popup uses the same active-player selection logic as the
+;; Waybar rail (lib/player.sh). Without this, the popup reads the
+;; first player playerctl picks by default — typically a stopped
+;; Chromium tab — and the play/pause button shows the wrong icon
+;; while Spotify is actually playing.
 
 (defpoll p_status :interval "1s" :initial "Stopped"
-  "playerctl status 2>/dev/null || echo Stopped")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh status")
 
 (defpoll p_title :interval "1s" :initial ""
-  "playerctl metadata --format '{{ title }}' 2>/dev/null || true")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh title")
 
 (defpoll p_artist :interval "1s" :initial ""
-  "playerctl metadata --format '{{ artist }}' 2>/dev/null || true")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh artist")
 
 (defpoll p_album :interval "1s" :initial ""
-  "playerctl metadata --format '{{ album }}' 2>/dev/null || true")
+  "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/state.sh album")
 
 (defpoll p_progress :interval "1s" :initial "0"
   "/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/scripts/media/progress.sh pct")
