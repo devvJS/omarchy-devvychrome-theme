@@ -24,6 +24,33 @@ so the same files work regardless of where the repository is cloned.
 export DEVVYCHROME_REPO="$(pwd)"   # run from the repo root
 ```
 
+## Sanity-checking the scripts
+
+Before launching a scratch Waybar, verify the two custom modules emit
+the shapes the bar expects. This catches metadata regressions and
+cava instability without needing to look at the live rail.
+
+```bash
+export DEVVYCHROME_REPO="$(pwd)"
+
+# now-playing.sh emits one JSON line. With media playing it should
+# render as `<artist> · <title>` inside the pango span; with no
+# active player it should fall back to the recessed-dot idle payload.
+DEVVYCHROME_REPO="$DEVVYCHROME_REPO" bash scripts/media/now-playing.sh
+
+# wave.sh streams one line per cava frame. Each frame must be
+# exactly 8 characters wide (BARS=8), and silence renders as a
+# stable ▁▁▁▁▁▁▁▁ baseline rather than empty cells.
+timeout 3 bash scripts/media/wave.sh | awk '{ printf "len=%d  %s\n", length($0), $0 }'
+```
+
+Static syntax check before any of the above:
+
+```bash
+bash -n scripts/media/now-playing.sh
+bash -n scripts/media/wave.sh
+```
+
 ## Scratch preview
 
 This loop never touches `~/.config/waybar`.

@@ -68,17 +68,42 @@ if ! command -v playerctl >/dev/null 2>&1; then
     exit 0
 fi
 
-status=$(playerctl status 2>/dev/null || true)
+# Single playerctl invocation pinned to one player. Splitting status
+# and metadata across multiple calls let playerctl land on different
+# players between calls (especially during track transitions or with
+# multiple active MPRIS clients), which is the most common cause of
+# the artist field flickering empty. ASCII unit-separator (\x1F) is
+# used to delimit fields so any natural punctuation in titles or
+# album names passes through cleanly.
+SEP=$'\x1f'
+fmt="{{status}}${SEP}{{xesam:artist}}${SEP}{{xesam:albumArtist}}${SEP}{{xesam:title}}${SEP}{{xesam:album}}${SEP}{{mpris:length}}"
+data=$(playerctl metadata --format "$fmt" 2>/dev/null || true)
 
-if [[ -z "$status" ]]; then
+if [[ -z "$data" ]]; then
     emit_idle "$GLYPH_IDLE" "No active player" "idle"
 fi
 
-artist=$(playerctl metadata --format '{{ artist }}'        2>/dev/null || true)
-title=$( playerctl metadata --format '{{ title }}'         2>/dev/null || true)
-album=$( playerctl metadata --format '{{ album }}'         2>/dev/null || true)
-pos=$(   playerctl position                                2>/dev/null || true)
-len=$(   playerctl metadata --format '{{ mpris:length }}'  2>/dev/null || true)
+IFS=$'\x1f' read -r status artist album_artist title album len <<< "$data"
+status=${status:-}
+artist=${artist:-}
+album_artist=${album_artist:-}
+title=${title:-}
+album=${album:-}
+len=${len:-}
+
+# Artist fallback chain. Spotify always populates xesam:artist, but
+# during the brief metadata-refresh window on track changes it can
+# return empty while xesam:albumArtist is still set. Some other
+# players (notably web browser MPRIS) also leave xesam:artist empty
+# but populate xesam:albumArtist. Falling back keeps the rail stable.
+if [[ -z "$artist" ]]; then
+    artist="$album_artist"
+fi
+
+# Position is a runtime property, not metadata; fetched separately.
+# Slight race versus the metadata block is acceptable — it only
+# affects the progress percentage by a tick.
+pos=$(playerctl position 2>/dev/null || true)
 
 # Luminance bands per playback state. Playing carries one bright
 # beacon (the glyph) and one prominent readout (the progress fill);
