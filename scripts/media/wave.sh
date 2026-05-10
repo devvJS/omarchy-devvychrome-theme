@@ -36,31 +36,31 @@ TICK=0.5
 # scrolling waveform.
 GLYPHS=( '▁' '▂' '▃' '▄' '▅' '▆' '▇' '█' )
 
-# 16 frames of the Playing pattern. Each entry is exactly BARS
-# digits, one per cell. Constraint: between any two adjacent frames
-# (including the wrap from last to first) no cell moves by more than
-# one level, and no more than three cells move at once. This keeps
-# the motion quiet and prevents any perception of horizontal travel.
+# 12 frames of the Playing pattern. Each entry is exactly BARS
+# digits, mirror-symmetric (digit[i] == digit[7-i]) so the meter
+# never appears to slide left or right; any change happens to a
+# pair of cells equidistant from the center. Adjacent frames
+# (including the wrap from last to first) move at most one
+# symmetric pair at a time, each by a single level. Every cell
+# varies across the cycle: outer pair (0, 7) ±1, inner pairs ±1,
+# center pair ±2. The result is a soft hill that swells and recedes
+# in place over a 6-second loop.
 PLAY_FRAMES=(
-    "01232100"
-    "01233100"
-    "01234100"
-    "01244200"
-    "01345200"
-    "01345200"
-    "01344200"
-    "01233200"
-    "01233100"
-    "01232100"
-    "01122100"
-    "01232100"
-    "01233200"
-    "01233100"
-    "01232100"
-    "00122100"
+    "01233210"
+    "01244210"
+    "02244220"
+    "02255220"
+    "12255221"
+    "12355321"
+    "12355321"
+    "12344321"
+    "12244221"
+    "02244220"
+    "02233220"
+    "01233210"
 )
 
-PAUSED_FRAME="00112100"   # ▁▁▂▂▃▂▁▁ — static low hump
+PAUSED_FRAME="00122100"   # ▁▁▂▃▃▂▁▁ — static symmetric low hump
 BASELINE_FRAME="00000000" # ▁▁▁▁▁▁▁▁ — recessed baseline
 
 render() {
