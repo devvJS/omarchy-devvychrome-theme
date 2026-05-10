@@ -26,17 +26,62 @@ any theme — Devvychrome will just look the most coherent under it.
 
 ## Visual intent
 
-- **Lower-third anchor.** The time sits roughly in the lower third of the
-  screen; the date is a quiet caption directly beneath it. The status
-  pretext (`SEALED`) above the time keeps the workstation legible as
-  *closed* rather than *decorated*.
-- **Subtle password field.** 360×44, 1px `#3a3a3a` outline, no rounding,
-  no shadow, no fade. The placeholder reads `unlock` in mid-grey.
-- **No blur on the wallpaper.** Devvychrome wallpapers
-  (`coastal-monolith`, `frame-decay`, `watcher`) are already monochrome
-  fog; blurring them flattens the instrumentation feel.
-- **No animations, no neon, no glassmorphism.** Hierarchy is luminance
+- **Blurred monochrome backdrop.** `blur_passes = 3` (matching stock
+  Omarchy) softens Devvychrome wallpapers (`coastal-monolith`,
+  `frame-decay`, `watcher`) into a fog. No shape overlay, no
+  brightness dial — the wallpaper is meant to read.
+- **Centered cluster.** Time, date, and auth field stack around the
+  primary monitor's screen center: time on top (96pt JetBrainsMono
+  Light), date as a quiet caption directly below (12pt), then the auth
+  panel.
+- **Large industrial auth panel.** 580×84, opaque `#080808` interior,
+  2px `#2a2a2a` outline, no rounding, no shadow, no fade. Placeholder
+  reads `enter the void` in mid-grey.
+- **Primary-monitor only.** Secondary monitors show the blurred
+  wallpaper with no time, no date, and no auth field — see the
+  per-host pinning section below.
+- **No animation, no neon, no glassmorphism.** Hierarchy is luminance
   only.
+
+## Per-host monitor pinning
+
+`hypr/hyprlock.conf` ships with the time, date, and auth field pinned
+to a specific monitor (`monitor = DP-1`) so multi-monitor sessions
+don't render a mirrored auth panel on every screen. The dimmed
+wallpaper + dark overlay still cover every output, so secondary
+monitors read as bare sealed surfaces with no readout.
+
+This pin is a per-host setting and almost certainly does not match
+your machine. Set it once after install:
+
+```bash
+# 1. List your outputs.
+hyprctl monitors | grep -E "^Monitor"
+#   Monitor DP-1 (ID 0):    ← example primary
+#   Monitor HDMI-A-1 (ID 1): ← example secondary
+
+# 2. Edit ~/.config/hypr/hyprlock.conf and set every `monitor = ...`
+#    line to your primary's name. There are three of them — the time
+#    label, the date label, and the input-field block.
+```
+
+Behavior of the `monitor` field:
+
+| Block        | `monitor = <name>` | `monitor =` (empty) |
+|--------------|--------------------|---------------------|
+| `background` | only that output   | every output (default — keep this) |
+| `shape`      | only that output   | every output (default — keep this) |
+| `label`      | only that output   | mirrored to every output |
+| `input-field`| only that output   | mirrored to every output |
+
+If you want *only* the primary monitor lit during lock and the others
+to stay dark, pin `background` and the `shape` overlay to your
+primary's name as well — or replace `path = ...` in `background`
+with `color = $color` to render flat `#161616` everywhere.
+
+If you want the readout on every monitor (e.g. single-monitor setup,
+or you genuinely want mirrored info), clear all three `monitor =`
+lines back to empty.
 
 ## Install
 
@@ -115,12 +160,19 @@ omarchy refresh config hypr/hyprlock.conf
 ## Manual test checklist
 
 - [ ] `hyprctl configerrors` is clean after `omarchy theme set devvychrome`.
-- [ ] Lock screen renders the time in the lower third, date directly
-      beneath, `SEALED` pretext above.
-- [ ] Password field outline is faint (`#3a3a3a`), 1px, no rounding.
-- [ ] Background image is the active Devvychrome wallpaper, unblurred.
+- [ ] Wallpaper is blurred (`blur_passes = 3`) and reads as a soft
+      monochrome fog on every monitor.
+- [ ] On the primary monitor, time, date, and auth field stack around
+      screen center — time on top, date directly beneath, auth panel
+      below.
+- [ ] Secondary monitors show the blurred wallpaper only — no time,
+      date, or auth field mirrored across.
+- [ ] Auth-field interior is opaque dark (`#080808`); outline is dim
+      (`#2a2a2a`), 2px, no rounding, no shadow. Placeholder reads
+      `enter the void` in mid-grey.
 - [ ] No animation when invoking or dismissing the lock.
 - [ ] Failed-auth text renders in mid-grey, not red.
-- [ ] Layout still looks reasonable on a second monitor of a different
-      resolution (the lower-third offsets are pixel-based; tune if
-      needed).
+- [ ] Vertical offsets are tuned for ~1440px screen height. Nudge the
+      `position = 0, NNN` Y values on the time/date/auth blocks if the
+      cluster floats too high or crowds the bottom on a different
+      resolution.
