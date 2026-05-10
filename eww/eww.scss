@@ -39,15 +39,21 @@
 }
 
 // ── Album art frame ─────────────────────────────────────────────
-// Capsule treatment matches the chassis so the art reads as a
-// permanent panel inset, not a rectangle laid on top.
+// The wrapper itself is transparent and chrome-less; the shadow
+// lives on the inner image so it never bleeds outside the artwork
+// rectangle (the wrapper-bleed regression earlier in v1.5).
 .art-frame {
   min-width: 80px;
   min-height: 80px;
   padding: 0;
   margin: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.art-frame image {
   border-radius: 4px;
-  border: 2px solid #111111;
   box-shadow: 0 6px 14px rgba(0,0,0,0.65);
 }
 
@@ -212,27 +218,3 @@
     }
 }
 
-.album-art {
-  min-width: 80px;
-  min-height: 80px;
-  border-radius: 4px;
-  border: 2px solid #111111;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
-}
-
-
-/* Final art-frame correction: collapse wrapper, style image only */
-.art-frame {
-  padding: 0;
-  margin: 0;
-  border: none;
-  box-shadow: none;
-  background: transparent;
-  min-width: 80px;
-  min-height: 80px;
-}
-
-.art-frame image {
-  border-radius: 4px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.65);
-}
