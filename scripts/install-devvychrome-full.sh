@@ -45,10 +45,13 @@ cp "$REPO/eww/art-placeholder.png" "$HOME/.config/eww/art-placeholder.png"
 cp "$REPO/walker/themes/devvychrome/layout.xml" "$HOME/.config/walker/themes/devvychrome/layout.xml"
 cp "$REPO/walker/themes/devvychrome/style.css" "$HOME/.config/walker/themes/devvychrome/style.css"
 
+cp "$REPO/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+cp "$REPO/waybar/style.css" "$HOME/.config/waybar/style.css"
+
 chmod +x "$REPO"/scripts/media/*.sh
 chmod +x "$REPO"/scripts/media/lib/*.sh
 
 echo "Installed Devvychrome assets."
 echo "Backup saved to: $BACKUP"
 echo
-echo "NOTE: Waybar full config still needs to be generated/installed from the theme repo."
+echo "Restart Waybar with: omarchy-restart-waybar"
