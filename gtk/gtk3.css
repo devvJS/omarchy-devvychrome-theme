@@ -1,0 +1,48 @@
+/* Devvychrome — GTK3 color overrides
+ *
+ * Installed to ~/.config/gtk-3.0/gtk.css by the Devvychrome install script.
+ *
+ * Overrides Adwaita GTK3 palette variables. GTK3 uses a different variable
+ * schema from GTK4; both files are required for full coverage.
+ *
+ * Affects: GTK3 file dialogs, legacy GTK3 apps.
+ *
+ * Rollback: delete ~/.config/gtk-3.0/gtk.css (backup created by installer).
+ */
+
+/* ── Core palette ────────────────────────────────────────────────── */
+@define-color theme_bg_color           #1b1b1b;
+@define-color theme_fg_color           #e0e0e0;
+@define-color theme_base_color         #161616;
+@define-color theme_text_color         #e0e0e0;
+
+@define-color theme_selected_bg_color  #3a3a3a;
+@define-color theme_selected_fg_color  #e0e0e0;
+
+@define-color theme_tooltip_bg_color   #222222;
+@define-color theme_tooltip_fg_color   #e0e0e0;
+
+/* ── Button / widget surfaces ────────────────────────────────────── */
+@define-color theme_button_bg_color    #222222;
+@define-color theme_button_fg_color    #e0e0e0;
+
+/* ── Borders ─────────────────────────────────────────────────────── */
+@define-color borders                  #2a2a2a;
+@define-color unfocused_borders        #1d1d1d;
+@define-color warning_color            #b0b0b0;
+@define-color error_color              #e0e0e0;
+@define-color success_color            #9a9a9a;
+
+/* ── Headerbar / titlebar ────────────────────────────────────────── */
+@define-color header_bg                #1d1d1d;
+@define-color header_fg                #e0e0e0;
+@define-color header_border            #2a2a2a;
+
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+@define-color sidebar_bg               #1b1b1b;
+@define-color sidebar_fg               #e0e0e0;
+
+/* ── Insensitive (disabled) state ────────────────────────────────── */
+@define-color insensitive_fg_color     #6f6f6f;
+@define-color insensitive_bg_color     #1b1b1b;
+@define-color insensitive_border_color #1d1d1d;

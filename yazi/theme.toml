@@ -1,0 +1,161 @@
+# Devvychrome yazi theme
+#
+# Installed to ~/.config/yazi/theme.toml by the Devvychrome install script.
+#
+# Monochrome matte palette. Hierarchy by luminance, no hue.
+# Accent (#9a9a9a) is used for selection, mode indicators, and active
+# borders — consistent with Walker, Waybar, and Mako.
+
+[mgr]
+cwd = { fg = "#9a9a9a" }
+
+# Hovered row
+hovered         = { fg = "#e0e0e0", bg = "#2a2a2a" }
+preview_hovered = { bg = "#1d1d1d" }
+
+# Find highlight
+find_keyword  = { fg = "#161616", bg = "#9a9a9a", bold = true }
+find_position = { fg = "#9a9a9a", italic = true }
+
+# Marker strips (left gutter)
+marker_copied   = { fg = "#9a9a9a",  bg = "#9a9a9a" }
+marker_cut      = { fg = "#6f6f6f",  bg = "#6f6f6f" }
+marker_marked   = { fg = "#b0b0b0",  bg = "#b0b0b0" }
+marker_selected = { fg = "#e0e0e0",  bg = "#e0e0e0" }
+
+# Selected-count badge
+count_copied   = { fg = "#161616", bg = "#9a9a9a" }
+count_cut      = { fg = "#161616", bg = "#6f6f6f" }
+count_selected = { fg = "#161616", bg = "#e0e0e0" }
+
+# Panel border
+border_symbol = "│"
+border_style  = { fg = "#2a2a2a" }
+
+# ── Tabs ─────────────────────────────────────────────────────────────
+[tabs]
+active   = { fg = "#161616", bg = "#9a9a9a" }
+inactive = { fg = "#6f6f6f", bg = "#222222" }
+
+# ── Mode indicator ────────────────────────────────────────────────────
+# main = bold pill; alt = secondary info alongside the pill
+[mode]
+normal_main = { fg = "#161616", bg = "#9a9a9a", bold = true }
+normal_alt  = { fg = "#9a9a9a", bg = "#222222" }
+
+select_main = { fg = "#161616", bg = "#e0e0e0", bold = true }
+select_alt  = { fg = "#e0e0e0", bg = "#222222" }
+
+unset_main  = { fg = "#161616", bg = "#6f6f6f", bold = true }
+unset_alt   = { fg = "#6f6f6f", bg = "#222222" }
+
+# ── Status bar ────────────────────────────────────────────────────────
+[status]
+overall   = { fg = "#9a9a9a", bg = "#222222" }
+sep_left  = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+
+progress_label  = { fg = "#e0e0e0", bold = true }
+progress_normal = { fg = "#9a9a9a", bg = "#222222" }
+progress_error  = { fg = "#ececec", bg = "#222222" }
+
+perm_type  = { fg = "#9a9a9a" }
+perm_read  = { fg = "#b0b0b0" }
+perm_write = { fg = "#6f6f6f" }
+perm_exec  = { fg = "#e0e0e0" }
+perm_sep   = { fg = "#3a3a3a" }
+
+# ── File picker ───────────────────────────────────────────────────────
+[pick]
+border   = { fg = "#3a3a3a" }
+active   = { fg = "#e0e0e0", bg = "#2a2a2a" }
+inactive = { fg = "#c8c8c8" }
+
+# ── Input box ────────────────────────────────────────────────────────
+[input]
+border   = { fg = "#3a3a3a" }
+title    = { fg = "#9a9a9a" }
+value    = { fg = "#e0e0e0" }
+selected = { bg = "#2a2a2a" }
+
+# ── Completion popup ─────────────────────────────────────────────────
+[cmp]
+border   = { fg = "#3a3a3a" }
+active   = { fg = "#e0e0e0", bg = "#2a2a2a" }
+inactive = { fg = "#c8c8c8" }
+
+icon_file    = ""
+icon_folder  = ""
+icon_command = ""
+
+# ── Tasks panel ───────────────────────────────────────────────────────
+[tasks]
+border  = { fg = "#3a3a3a" }
+title   = { fg = "#9a9a9a" }
+hovered = { underline = true }
+
+# ── Which-key help ────────────────────────────────────────────────────
+[which]
+mask            = { bg = "#1d1d1d" }
+cand            = { fg = "#c8c8c8" }
+rest            = { fg = "#6f6f6f" }
+desc            = { fg = "#9a9a9a" }
+separator       = "  "
+separator_style = { fg = "#3a3a3a" }
+
+# ── Confirm dialog ────────────────────────────────────────────────────
+[confirm]
+border  = { fg = "#3a3a3a" }
+title   = { fg = "#9a9a9a" }
+content = { fg = "#c8c8c8" }
+list    = { fg = "#e0e0e0" }
+
+# ── Spotlight search ──────────────────────────────────────────────────
+[spot]
+border = { fg = "#3a3a3a" }
+title  = { fg = "#9a9a9a" }
+
+# ── Notifications ────────────────────────────────────────────────────
+[notify]
+title_info  = { fg = "#9a9a9a" }
+title_warn  = { fg = "#b0b0b0" }
+title_error = { fg = "#ececec" }
+
+icon_info  = ""
+icon_warn  = ""
+icon_error = ""
+
+# ── Help panel ───────────────────────────────────────────────────────
+[help]
+on      = { fg = "#9a9a9a" }
+exec    = { fg = "#c8c8c8" }
+desc    = { fg = "#6f6f6f" }
+hovered = { bg = "#2a2a2a", bold = true }
+footer  = { fg = "#161616", bg = "#9a9a9a" }
+
+# ── File type coloring ────────────────────────────────────────────────
+# Luminance only — media files slightly dimmer, exec slightly brighter
+[filetype]
+rules = [
+  { mime = "image/*",              fg = "#b0b0b0" },
+  { mime = "video/*",              fg = "#b0b0b0" },
+  { mime = "audio/*",              fg = "#b0b0b0" },
+  { mime = "text/*",               fg = "#e0e0e0" },
+  { mime = "application/pdf",      fg = "#c8c8c8" },
+  { mime = "application/zip",      fg = "#9a9a9a" },
+  { mime = "application/x-tar",    fg = "#9a9a9a" },
+  { mime = "application/gzip",     fg = "#9a9a9a" },
+  { mime = "application/x-bzip2", fg = "#9a9a9a" },
+  { mime = "inode/directory",      fg = "#e0e0e0" },
+  { name = "*.sh",                 fg = "#ececec" },
+  { name = "*.bash",               fg = "#ececec" },
+  { name = "*.zsh",                fg = "#ececec" },
+  { name = "*.lua",                fg = "#e0e0e0" },
+  { name = "*.toml",               fg = "#c8c8c8" },
+  { name = "*.json",               fg = "#c8c8c8" },
+  { name = "*.yaml",               fg = "#c8c8c8" },
+  { name = "*.yml",                fg = "#c8c8c8" },
+  { name = "*.md",                 fg = "#c8c8c8" },
+  { name = "*.txt",                fg = "#c8c8c8" },
+  { name = "*",                    fg = "#e0e0e0" },
+]
