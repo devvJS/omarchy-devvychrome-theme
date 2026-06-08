@@ -28,8 +28,20 @@ if ! command -v playerctl >/dev/null 2>&1; then
     exit 0
 fi
 
-pos=$(playerctl position 2>/dev/null || true)
-len=$(playerctl metadata --format '{{ mpris:length }}' 2>/dev/null || true)
+# Resolve the active player so position/length come from the player
+# the rail is actually displaying, not whichever browser tab
+# playerctl picks by default.
+SELF_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+source "$SELF_DIR/lib/player.sh"
+
+if ! devvychrome_pick_player; then
+    emit_default
+    exit 0
+fi
+
+pos=$(playerctl --player="$DEVVYCHROME_PLAYER" position 2>/dev/null || true)
+len=$(playerctl --player="$DEVVYCHROME_PLAYER" metadata --format '{{ mpris:length }}' 2>/dev/null || true)
 
 if [[ -z "$pos" || -z "$len" || ! "$len" =~ ^[0-9]+$ ]] || (( len == 0 )); then
     emit_default

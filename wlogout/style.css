@@ -1,0 +1,157 @@
+/* Devvychrome — wlogout styling (industrial control strip)
+ *
+ * wlogout idiom (verified against /etc/wlogout/style.css and wlogout(5)):
+ *   - One button per layout entry. The button is a GtkButton wrapping
+ *     a single GtkLabel — single-line by default. Multiline `text`
+ *     fields collapse to spaces; we don't fight that.
+ *   - The icon is a CSS `background-image` set per `#<label>`. The
+ *     image is positioned and sized via `background-position` and
+ *     `background-size`.
+ *   - The label text is positioned within the button via the layout
+ *     entry's `width` and `height` fractions (0.0–1.0). Default
+ *     `width: 0.5, height: 0.9` — horizontally centered, near the
+ *     bottom. We use `height: 0.80` so the label sits clearly lifted
+ *     from the bottom edge and gives the icon a dominant upper third.
+ *
+ * Visual language:
+ *   - Square-ish tiles arranged as a single centered horizontal
+ *     control strip. The five tiles are themselves the rail — there
+ *     is no outer card wrapper.
+ *   - Each tile carries a Lucide-style outlined SVG icon (stroke,
+ *     not fill) at #e0e0e0 (text.primary). Stroked geometry renders
+ *     crisper than filled paths at this scale and gives the
+ *     "blueprint instrument" feel the mockup calls for.
+ *   - Chassis is a soft 1 px outline at borders.default (#2a2a2a)
+ *     rather than the heavy HANCORE 2 px #111 used elsewhere — at
+ *     this tile size the heavier border merges with the backdrop
+ *     and the tile loses its outline. A layered shadow (engraved
+ *     base + soft outer elevation + faint inset top-edge bevel)
+ *     supplies the industrial card depth.
+ *   - Hierarchy is luminance-only. Hover lifts the cell by one
+ *     surface band and brightens the label one luminance step. The
+ *     icon does not recolour on hover — the cell lift is the
+ *     affordance, the icon is the identifier.
+ *   - 120 ms ease on background, colour, and border-colour. No
+ *     scale, no glow, no shadow growth.
+ */
+
+* {
+    /* JetBrainsMono Nerd Font is installed by Omarchy / the theme.
+     * The Propo (proportional) variant is preferred for label text;
+     * the mono fallback is harmless if Propo isn't available. We do
+     * NOT reference Caskaydia here — that font may not be installed,
+     * which silently falls through to Liberation Sans and breaks the
+     * label rhythm. */
+    font-family: 'JetBrainsMono Nerd Font Propo',
+                 'JetBrainsMono Nerd Font',
+                 sans-serif;
+    background-image: none;
+    box-shadow: none;
+    text-shadow: none;
+    -gtk-icon-shadow: none;
+    transition: background-color 120ms ease,
+                color            120ms ease,
+                border-color     120ms ease;
+}
+
+/* ── Backdrop ────────────────────────────────────────────────────── */
+/* Matte dark plate. The desktop visibly recedes; nothing reflects.   */
+window {
+    background-color: rgba(17, 17, 17, 0.92);  /* backgrounds.absolute */
+}
+
+/* ── Action tile (base) ──────────────────────────────────────────── */
+button {
+    /* Absolute margins compress wlogout's grid into a centered
+     * horizontal strip on the theme's primary 1440 p ultrawide
+     * target. 360 px top/bottom + 24 px between tiles produces five
+     * roughly-square instrument keys at ≈ 240 × 260 each. Min sizes
+     * floor the tile so the row never collapses on smaller screens.
+     *
+     * Net effect: a horizontal band of five short, square-ish tiles
+     * centered on screen. "Compact instrument strip", not a card grid.
+     * Wider screens get more horizontal breathing room either side
+     * of the strip; the strip itself stays a fixed pixel width. */
+    margin: 360px 24px;
+    min-width: 240px;
+    min-height: 260px;
+
+    color: #c8c8c8;                            /* text.secondary */
+    background-color: #1d1d1d;                 /* backgrounds.secondary */
+    /* Soft 1 px outline. At the tile scale the prior 2 px #111 border
+     * merged with the matte backdrop; #2a2a2a holds a visible edge
+     * without becoming decorative. */
+    border: 1px solid #2a2a2a;                 /* borders.default */
+    border-radius: 4px;
+    /* Layered industrial card depth:
+     *   1. 0 1px 2px / opacity 1   — engraved base, sharp and near.
+     *   2. 0 6px 20px / 0.35       — soft outer elevation; the cell
+     *                                "sits proud" of the backdrop.
+     *   3. inset 0 1px 0 / 0.04    — barely-there top-edge bevel
+     *                                that catches a hint of light.
+     * No glow, no neon — each layer earns its place. */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 1),
+                0 6px 20px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    /* Single-line label. font-size sized for the label proportional
+     * to a ≈260 px square tile — large enough to read as operational,
+     * small enough to leave the icon dominant. */
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1.8px;                     /* "label" feel */
+
+    /* Icon as background-image. Position is the icon centre in
+     * normalized fractions of the tile. 34% from top puts the icon
+     * centre in the upper-third; with the label positioned by the
+     * layout's `height: 0.80`, there is a clean gap between the
+     * two. Larger background-size (96 px) matches the mockup's
+     * dominant-icon hierarchy and gives the stroked SVG room to
+     * render crisply. */
+    background-repeat: no-repeat;
+    background-position: center 34%;
+    background-size: 96px 96px;
+}
+
+/* ── Per-tile icons ──────────────────────────────────────────────── */
+/* SVG paths live in `<repo>/wlogout/icons/`. Relative URL is resolved
+ * by GTK CSS against this stylesheet's location. If the user copies
+ * the sheet into ~/.config/wlogout/ (Style 2 install), the
+ * `icons/` subdir must come along — the README documents this.       */
+#lock     { background-image: url("/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/wlogout/icons/lock.svg"); }
+#logout   { background-image: url("/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/wlogout/icons/logout.svg"); }
+#suspend  { background-image: url("/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/wlogout/icons/suspend.svg"); }
+#reboot   { background-image: url("/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/wlogout/icons/reboot.svg"); }
+#shutdown { background-image: url("/home/devvjs/Projects/source_code/omarchy-devvychrome-theme/wlogout/icons/shutdown.svg"); }
+
+/* ── Hover ───────────────────────────────────────────────────────── */
+/* One surface band lift; one luminance step on the label. No scale, */
+/* no glow, no border colour shift, no icon recolour. The cell takes */
+/* a small amount of light — never emits it.                         */
+button:hover {
+    background-color: #242424;                 /* surfaces.surface */
+    color: #e0e0e0;                            /* text.primary */
+}
+
+/* ── Active (depressed) ──────────────────────────────────────────── */
+/* The cell sinks one band further. Reads as a physically actuated   */
+/* console key the instant before the action fires.                  */
+button:active {
+    background-color: #2b2b2b;                 /* surfaces.elevated */
+    color: #e0e0e0;
+}
+
+/* ── Focus (keyboard) ────────────────────────────────────────────── */
+/* Accessible reach via Tab / arrow keys. Border lifts to            */
+/* borders.active without changing fill, so a focused but un-hovered */
+/* tile reads as armed, not pressed.                                 */
+button:focus {
+    border-color: #5a5a5a;                     /* borders.active */
+    outline: none;
+}
+
+button:focus:hover {
+    background-color: #242424;
+    border-color: #5a5a5a;
+    color: #e0e0e0;
+}

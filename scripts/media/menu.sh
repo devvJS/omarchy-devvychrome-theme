@@ -32,14 +32,23 @@ set -u
 if ! command -v rofi      >/dev/null 2>&1; then exit 0; fi
 if ! command -v playerctl >/dev/null 2>&1; then exit 0; fi
 
-control="$(dirname -- "$0")/control.sh"
+SELF_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+control="$SELF_DIR/control.sh"
 
-# Resolve a short context line for the menu header. If no track is
-# loaded, the header reads "(no active player)"; the menu still
-# opens so the user gets explicit feedback that right-click worked.
-status=$(playerctl status 2>/dev/null || true)
-title=$( playerctl metadata --format '{{ title }}'  2>/dev/null || true)
-artist=$(playerctl metadata --format '{{ artist }}' 2>/dev/null || true)
+# shellcheck disable=SC1091
+source "$SELF_DIR/lib/player.sh"
+
+# Resolve a short context line for the menu header. If no playable
+# player is found, the header reads "(no active player)"; the menu
+# still opens so the user gets explicit feedback that right-click
+# worked. Header metadata is sourced from the same player control.sh
+# will dispatch transport commands to.
+title=""
+artist=""
+if devvychrome_pick_player; then
+    title=$( playerctl --player="$DEVVYCHROME_PLAYER" metadata --format '{{ xesam:title }}'  2>/dev/null || true)
+    artist=$(playerctl --player="$DEVVYCHROME_PLAYER" metadata --format '{{ xesam:artist }}' 2>/dev/null || true)
+fi
 
 if [[ -n "$title" || -n "$artist" ]]; then
     header="${title:-?} · ${artist:-?}"

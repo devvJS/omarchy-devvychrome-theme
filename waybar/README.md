@@ -24,6 +24,27 @@ so the same files work regardless of where the repository is cloned.
 export DEVVYCHROME_REPO="$(pwd)"   # run from the repo root
 ```
 
+## Sanity-checking the scripts
+
+Before launching a scratch Waybar, verify the rail's custom module
+emits the JSON shape the bar expects.
+
+```bash
+export DEVVYCHROME_REPO="$(pwd)"
+
+# now-playing.sh emits one JSON line. With media playing it should
+# render as `<artist> · <title>` plus a discrete 8-cell progress
+# ribbon inside the pango span; with no active player it should fall
+# back to the recessed-dot idle payload.
+DEVVYCHROME_REPO="$DEVVYCHROME_REPO" bash scripts/media/now-playing.sh
+```
+
+Static syntax check on every media script:
+
+```bash
+bash -n scripts/media/*.sh scripts/media/lib/*.sh
+```
+
 ## Scratch preview
 
 This loop never touches `~/.config/waybar`.
@@ -62,8 +83,8 @@ Then, by hand:
 1. Add `"group/devvychrome-media-rail"` to `modules-left` (or
    wherever the previous `mpris` entry lived) in
    `~/.config/waybar/config.jsonc`.
-2. Copy the `group/devvychrome-media-rail`, `custom/now-playing`,
-   and `custom/wave` blocks from `config.jsonc.fragment`.
+2. Copy the `group/devvychrome-media-rail` and `custom/now-playing`
+   blocks from `config.jsonc.fragment`.
 3. Lift the rules under the **Devvychrome Media Rail** header in
    `style.css.fragment` into `~/.config/waybar/style.css`.
 4. Ensure `$DEVVYCHROME_REPO` is exported in the Hyprland session
@@ -75,14 +96,26 @@ Then, by hand:
 
 | Tool        | Required for                                  | Fallback if missing                       |
 | ----------- | --------------------------------------------- | ----------------------------------------- |
-| `playerctl` | `now-playing.sh`, `control.sh`, `menu.sh`     | Rail renders empty / scripts exit silently |
-| `cava`      | `wave.sh` (optional waveform layer)           | Waveform module disappears; ribbon stays  |
+| `playerctl` | `now-playing.sh`, `control.sh`, `menu.sh`, `progress.sh`, `art.sh`, `state.sh` | Rail renders empty / scripts exit silently |
 | `rofi`      | `menu.sh` (right-click fallback)              | Menu does nothing                          |
 | `curl` *or* `wget` | `art.sh` http(s) art fetch             | `art.sh` exits silently                    |
 | `magick`/`convert` *or* `ffmpeg` | `art.sh` desaturation     | `art.sh` exits silently                    |
 
-`art.sh` is wired but not consumed in v1; the dependency table is
-listed so the v1.5 popup branch starts from a known baseline.
+`art.sh` is consumed by the eww popup (v1.5) via
+`art-or-placeholder.sh`.
+
+## Visualization
+
+Waybar v1 deliberately ships **no** music visualizer. The earlier
+`custom/wave` module — first cava-driven, later a deterministic
+text meter — caused capsule width and motion stability problems on
+the bar surface. The 8-cell discrete progress ribbon emitted by
+`now-playing.sh` carries the "rail is alive" signal without animation.
+
+Real audio visualization is reserved for a future enhancement to the
+eww popup, where graphical rendering (GTK widgets, drawing primitives)
+is the right tool. Do not reintroduce a streaming visualizer to
+Waybar.
 
 ## Fonts
 

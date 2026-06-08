@@ -1,0 +1,81 @@
+/* Devvychrome — GTK4 color overrides
+ *
+ * Installed to ~/.config/gtk-4.0/gtk.css by the Devvychrome install script.
+ *
+ * These @define-color declarations replace Adwaita-dark's palette with
+ * the Devvychrome monochrome palette. Adwaita reads these variables at
+ * load time; no GTK widget layout rules are changed here — only colors.
+ *
+ * Affects: Nautilus, file pickers, GTK4 dialogs, portals.
+ *
+ * Rollback: delete ~/.config/gtk-4.0/gtk.css (backup created by installer).
+ */
+
+/* ── Surfaces ────────────────────────────────────────────────────── */
+@define-color window_bg_color          #1b1b1b;
+@define-color window_fg_color          #e0e0e0;
+
+@define-color view_bg_color            #161616;
+@define-color view_fg_color            #e0e0e0;
+
+@define-color card_bg_color            #222222;
+@define-color card_fg_color            #e0e0e0;
+@define-color card_shade_color         rgba(0, 0, 0, 0.28);
+
+@define-color dialog_bg_color          #1d1d1d;
+@define-color dialog_fg_color          #e0e0e0;
+
+@define-color popover_bg_color         #222222;
+@define-color popover_fg_color         #e0e0e0;
+@define-color popover_shade_color      rgba(0, 0, 0, 0.28);
+
+/* ── Headerbar ───────────────────────────────────────────────────── */
+@define-color headerbar_bg_color       #1d1d1d;
+@define-color headerbar_fg_color       #e0e0e0;
+@define-color headerbar_border_color   #2a2a2a;
+@define-color headerbar_backdrop_color #161616;
+@define-color headerbar_shade_color    rgba(0, 0, 0, 0.36);
+@define-color headerbar_darker_shade_color rgba(0, 0, 0, 0.52);
+
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+@define-color sidebar_bg_color         #1b1b1b;
+@define-color sidebar_fg_color         #e0e0e0;
+@define-color sidebar_backdrop_color   #161616;
+@define-color sidebar_shade_color      rgba(0, 0, 0, 0.28);
+@define-color sidebar_border_color     #2a2a2a;
+
+/* ── Secondary sidebar (Nautilus places panel) ───────────────────── */
+@define-color secondary_sidebar_bg_color    #1d1d1d;
+@define-color secondary_sidebar_fg_color    #e0e0e0;
+@define-color secondary_sidebar_backdrop_color #161616;
+@define-color secondary_sidebar_shade_color rgba(0, 0, 0, 0.28);
+@define-color secondary_sidebar_border_color #2a2a2a;
+
+/* ── Accent ──────────────────────────────────────────────────────── */
+@define-color accent_color             #9a9a9a;
+@define-color accent_bg_color          #3a3a3a;
+@define-color accent_fg_color          #e0e0e0;
+
+/* ── Status colors (luminance-only, no hue) ─────────────────────── */
+@define-color destructive_color        #b0b0b0;
+@define-color destructive_bg_color     #3a3a3a;
+@define-color destructive_fg_color     #e0e0e0;
+
+@define-color success_color            #9a9a9a;
+@define-color success_bg_color         #2a2a2a;
+@define-color success_fg_color         #e0e0e0;
+
+@define-color warning_color            #b0b0b0;
+@define-color warning_bg_color         #2a2a2a;
+@define-color warning_fg_color         #e0e0e0;
+
+@define-color error_color              #e0e0e0;
+@define-color error_bg_color           #3a3a3a;
+@define-color error_fg_color           #161616;
+
+/* ── Misc ────────────────────────────────────────────────────────── */
+@define-color shade_color              rgba(0, 0, 0, 0.36);
+@define-color scrollbar_outline_color  rgba(0, 0, 0, 0.5);
+@define-color thumbnail_bg_color       #222222;
+@define-color borders                  #2a2a2a;
+@define-color unfocused_borders        #1d1d1d;
